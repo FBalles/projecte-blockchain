@@ -36,7 +36,7 @@ $router->post('/admin/solicitudes/{id}/realizado', [AdminController::class, 'mar
 $router->get('/admin/trazabilidad', [AdminController::class, 'trazabilidad'], 'admin');
 
 // Rutas empresa
-$router->get('/empresa/servicios', [EmpresaController::class, 'projecte-blockchain'], 'empresa');
+$router->get('/empresa/servicios', [EmpresaController::class, 'catalogo'], 'empresa');
 $router->post('/empresa/solicitudes', [EmpresaController::class, 'solicitar'], 'empresa');
 $router->get('/empresa/solicitudes', [EmpresaController::class, 'misSolicitudes'], 'empresa');
 $router->post('/empresa/solicitudes/{id}/validar', [EmpresaController::class, 'validar'], 'empresa');

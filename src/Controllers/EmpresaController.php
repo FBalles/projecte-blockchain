@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 class EmpresaController
 {
-    public static function projecte-blockchain(array $params = []): void
+    public static function catalogo(array $params = []): void
     {
         view('empresa/servicios.php', ['servicios' => Servicio::disponibles()]);
     }
