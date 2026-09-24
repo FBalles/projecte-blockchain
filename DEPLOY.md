@@ -28,7 +28,7 @@ EOF
 #IDENTIFIED BY 'PON_TU_PASSWORD_AQUI'
 
 #Paso 3: Clonar el código
-sudo git clone https://github.com/TU_USUARIO/projecte-servicios.git /var/www/projecte
+sudo git clone https://github.com/FBalles/projecte-blockchain /var/www/projecte
 cd /var/www/projecte
 Paso 4: Importar esquema
 sudo mysql -u projecte -p projecte < migrations/001_init.sql
