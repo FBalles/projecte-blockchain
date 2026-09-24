@@ -1,5 +1,5 @@
-CREATE DATABASE IF NOT EXISTS catalogo CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE catalogo;
+CREATE DATABASE IF NOT EXISTS projecte-blockchain CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE projecte-blockchain;
 
 CREATE TABLE usuarios (
     id INT AUTO_INCREMENT PRIMARY KEY,

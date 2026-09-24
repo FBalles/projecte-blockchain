@@ -8,10 +8,11 @@
 ---
 
 ```bash
+
 ## Paso 1: Preparar el sistema
 ssh tu_usuario@tu_vps
 sudo apt update && sudo apt upgrade -y
-sudo apt install -y nginx php-fpm php-mysql php-cli mysql-server git python3-pip
+sudo apt install -y nginx php-fpm php-mysql php-cli mariadb-server git python3-pip
 pip3 install mxpy
 sudo ufw allow 'Nginx Full'
 sudo ufw allow OpenSSH
@@ -19,17 +20,18 @@ sudo ufw enable
 
 # Paso 2: Crear base de datos
 sudo mysql <<'EOF'
-CREATE DATABASE IF NOT EXISTS catalogo CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER 'catalogo'@'localhost' IDENTIFIED BY 'PON_TU_PASSWORD_AQUI';
-GRANT ALL ON catalogo.* TO 'catalogo'@'localhost';
+CREATE DATABASE IF NOT EXISTS projecte-blockchain CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'projecte-blockchain'@'localhost' IDENTIFIED BY 'projecte-blockchain';
+GRANT ALL ON projecte-blockchain.* TO 'projecte-blockchain'@'localhost';
 FLUSH PRIVILEGES;
 EOF
+#IDENTIFIED BY 'PON_TU_PASSWORD_AQUI'
 
 #Paso 3: Clonar el código
-sudo git clone https://github.com/TU_USUARIO/catalogo-servicios.git /var/www/catalogo
-cd /var/www/catalogo
+sudo git clone https://github.com/TU_USUARIO/projecte-blockchain-servicios.git /var/www/projecte-blockchain
+cd /var/www/projecte-blockchain
 Paso 4: Importar esquema
-sudo mysql -u catalogo -p catalogo < migrations/001_init.sql
+sudo mysql -u projecte-blockchain -p projecte-blockchain < migrations/001_init.sql
 Paso 5: Configurar .env
 cp .env.example .env
 sudo nano .env
@@ -49,22 +51,22 @@ Obtener xEGLD en devnet:
 mxpy wallet address --pem keys/wallet.pem
 
 ## Paso 7: Configurar Nginx
-sudo cp nginx/catalogo.conf /etc/nginx/sites-available/catalogo
-sudo ln -s /etc/nginx/sites-available/catalogo /etc/nginx/sites-enabled/
+sudo cp nginx/projecte-blockchain.conf /etc/nginx/sites-available/projecte-blockchain
+sudo ln -s /etc/nginx/sites-available/projecte-blockchain /etc/nginx/sites-enabled/
 sudo nginx -t
 sudo systemctl reload nginx
 Si no tienes dominio, cambia server_name por la IP del VPS.
 
 ## Paso 8: Permisos
-sudo chown -R www-data:www-data /var/www/catalogo
-sudo chmod 600 /var/www/catalogo/keys/wallet.pem
+sudo chown -R www-data:www-data /var/www/projecte-blockchain
+sudo chmod 600 /var/www/projecte-blockchain/keys/wallet.pem
 
 ## Paso 9: HTTPS (si tienes dominio)
 sudo apt install -y certbot python3-certbot-nginx
-sudo certbot --nginx -d catalogo.tudominio.com
+sudo certbot --nginx -d projecte-blockchain.tudominio.com
 
 ## Paso 10: Verificar
-    1. Abrir http://tu_vps (o https://catalogo.tudominio.com)
+    1. Abrir http://tu_vps (o https://projecte-blockchain.tudominio.com)
     2. Login admin: admin@instituto.es / admin123
     3. Registrar una empresa de prueba
     4. Crear un servicio como admin
