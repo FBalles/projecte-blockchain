@@ -1,4 +1,9 @@
 <?php
+// Put this at the very top of public/index.php
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
+error_reporting(E_ALL);
+
 declare(strict_types=1);
 
 require_once __DIR__ . '/../src/Config.php';
@@ -17,9 +22,13 @@ $router = new Router();
 
 // Rutas públicas
 $router->get('/', fn() => view('login.php'));
+$router->get('/login', fn() => view('login.php')); // <--- ADD THIS LINE
+
 $router->post('/login', [Auth::class, 'login']);
+
 $router->get('/register', fn() => view('register.php')); // <--- ADD THIS LINE
 $router->post('/register', [Auth::class, 'register']);
+
 $router->post('/logout', function() {
     session_destroy();
     header('Location: /');
