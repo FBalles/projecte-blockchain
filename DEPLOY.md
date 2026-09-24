@@ -30,9 +30,11 @@ EOF
 #Paso 3: Clonar el código
 sudo git clone https://github.com/FBalles/projecte-blockchain /var/www/projecte
 cd /var/www/projecte
-Paso 4: Importar esquema
+
+#Paso 4: Importar esquema
 sudo mysql -u projecte -p projecte < migrations/001_init.sql
-Paso 5: Configurar .env
+
+#Paso 5: Configurar .env
 cp .env.example .env
 sudo nano .env
 Rellenar:
