@@ -55,9 +55,14 @@ mxpy wallet address --pem keys/wallet.pem
 ## Paso 7: Configurar Nginx
 sudo cp nginx/projecte.conf /etc/nginx/sites-available/projecte
 sudo ln -s /etc/nginx/sites-available/projecte /etc/nginx/sites-enabled/
+sudo rm /etc/nginx/sites-enabled/default
 sudo nginx -t
-sudo systemctl reload nginx
-Si no tienes dominio, cambia server_name por la IP del VPS.
+#Si no tienes dominio, cambia server_name por la IP del VPS.
+
+# Local
+# sudo nano /etc/hosts
+# 127.0.0.1 projecte.tudominio.com
+
 
 ## Paso 8: Permisos
 sudo chown -R www-data:www-data /var/www/projecte

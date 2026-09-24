@@ -18,6 +18,7 @@ $router = new Router();
 // Rutas públicas
 $router->get('/', fn() => view('login.php'));
 $router->post('/login', [Auth::class, 'login']);
+$router->get('/register', fn() => view('register.php')); // <--- ADD THIS LINE
 $router->post('/register', [Auth::class, 'register']);
 $router->post('/logout', function() {
     session_destroy();
