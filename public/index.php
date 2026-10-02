@@ -28,6 +28,8 @@ $router->post('/login', [Auth::class, 'login']);
 $router->get('/register', fn() => view('register.php')); // <--- ADD THIS LINE
 $router->post('/register', [Auth::class, 'register']);
 
+
+//Logout no encontrado
 $router->post('/logout', function() {
     session_destroy();
     header('Location: /');
