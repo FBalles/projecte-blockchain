@@ -1,6 +1,10 @@
 <?php
 declare(strict_types=1);
 
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
+error_reporting(E_ALL);
+
 require_once __DIR__ . '/../src/Config.php';
 require_once __DIR__ . '/../src/Auth.php';
 require_once __DIR__ . '/../src/Router.php';
@@ -17,8 +21,15 @@ $router = new Router();
 
 // Rutas públicas
 $router->get('/', fn() => view('login.php'));
+$router->get('/login', fn() => view('login.php')); // <--- ADD THIS LINE
+
 $router->post('/login', [Auth::class, 'login']);
+
+$router->get('/register', fn() => view('register.php')); // <--- ADD THIS LINE
 $router->post('/register', [Auth::class, 'register']);
+
+
+//Logout no encontrado
 $router->post('/logout', function() {
     session_destroy();
     header('Location: /');

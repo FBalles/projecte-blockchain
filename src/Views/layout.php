@@ -18,7 +18,10 @@
         <a href="/empresa/servicios">Catálogo</a>
         <a href="/empresa/solicitudes">Mis solicitudes</a>
     <?php endif; ?>
-    <a href="/logout" class="logout">Salir</a>
+    <!-- Formulario POST para el logout -->
+    <form action="/logout" method="POST" style="display: inline;">
+        <button type="submit" class="logout" style="background: none; border: none; cursor: pointer; color: inherit; font: inherit;">Salir</button>
+    </form>
 </nav>
 <main>
     <?= $content ?? '' ?>
