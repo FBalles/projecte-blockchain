@@ -13,7 +13,7 @@
 ssh tu_usuario@tu_vps
 sudo apt update && sudo apt upgrade -y
 sudo apt install -y nginx php-fpm php-mysql php-cli mariadb-server git python3-pip
-pip3 install mxpy
+pip3 install mxpy # --break-system-packages, Per si Ubuntu bloqueja la instal·lació de paquets de Python amb pip a nivell de sistema
 sudo ufw allow 'Nginx Full'
 sudo ufw allow OpenSSH
 sudo ufw enable
