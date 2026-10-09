@@ -13,7 +13,10 @@
 ssh tu_usuario@tu_vps
 sudo apt update && sudo apt upgrade -y
 sudo apt install -y nginx php-fpm php-mysql php-cli mariadb-server git python3-pip
-pip3 install mxpy # --break-system-packages, Per si Ubuntu bloqueja la instal·lació de paquets de Python amb pip a nivell de sistema
+pip3 install mxpy --break-system-packages #Per si Ubuntu bloqueja la instal·lació de paquets de Python amb pip a nivell de sistema
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc
+
 sudo ufw allow 'Nginx Full'
 sudo ufw allow OpenSSH
 sudo ufw enable
@@ -43,7 +46,8 @@ Rellenar:
 
 ## Paso 6: Crear wallet y obtener xEGLD
 mkdir -p keys
-mxpy wallet new keys/wallet.pem
+sudo chown -R $USER:www-data /var/www/projecte/keys
+mxpy wallet new --format pem --outfile keys/wallet.pem
 Obtener xEGLD en devnet:
     1. Ir a https://devnet-wallet.multiversx.com/unlock
     2. Importar la wallet (pega el contenido del .pem)
