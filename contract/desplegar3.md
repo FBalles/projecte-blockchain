@@ -59,12 +59,14 @@ mxpy wallet new --format pem --outfile $HOME/projecte-blockchain/keys/wallet.pem
 # faucet
 
 # Run deployment script to push contract builds and keys to /var/www/projecte
+chmod u+x $HOME/projecte-blockchain/deploy.sh
 $HOME/projecte-blockchain/deploy.sh
 
 
 -----
 
 # Enable site and disable default
+sudo cp nginx/projecte.conf /etc/nginx/sites-available/projecte
 sudo ln -sf /etc/nginx/sites-available/projecte /etc/nginx/sites-enabled/
 sudo rm -f /etc/nginx/sites-enabled/default
 sudo nginx -t

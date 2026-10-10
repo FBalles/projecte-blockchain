@@ -83,3 +83,8 @@ sudo certbot --nginx -d projecte.tudominio.com
     4. Crear un servicio como admin
     5. Solicitarlo como empresa
     6. Aceptar como admin → verificar en https://devnet-explorer.multiversx.com
+
+
+
+sudo apt install chromium
+# install dbeaver
