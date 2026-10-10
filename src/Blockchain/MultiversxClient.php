@@ -23,7 +23,7 @@ class MultiversxClient
         );
 
         $cmd = sprintf(
-            'mxpy contract call %s '
+            'HOME=/tmp /usr/local/bin/mxpy contract call %s '
             . '--pem %s '
             . '--proxy %s '
             . '--function recordEvent '
