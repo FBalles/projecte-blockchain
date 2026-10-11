@@ -1,13 +1,13 @@
 <?php 
 $titulo = 'Trazabilidad Blockchain'; 
 
-// Map event types to readable Bootstrap badge styles
-$badgeClasses = [
-    'solicitud'  => 'bg-primary text-white',
-    'aceptacion' => 'bg-success text-white',
-    'entrega'    => 'bg-info text-dark',
-    'rechazo'    => 'bg-danger text-white',
-    'aprobacion' => 'bg-warning text-dark',
+// Map event types to explicit inline CSS styles
+$badgeStyles = [
+    'solicitud'  => 'background-color: #0d6efd !important; color: #ffffff !important;', // Solid Blue / White text
+    'aceptacion' => 'background-color: #198754 !important; color: #ffffff !important;', // Solid Green / White text
+    'entrega'    => 'background-color: #0dcaf0 !important; color: #000000 !important;', // Light Cyan / Black text
+    'rechazo'    => 'background-color: #dc3545 !important; color: #ffffff !important;', // Solid Red / White text
+    'aprobacion' => 'background-color: #ffc107 !important; color: #000000 !important;', // Solid Yellow / Black text
 ];
 ?>
 
@@ -32,13 +32,13 @@ $badgeClasses = [
             <?php foreach ($events as $event): ?>
                 <?php 
                     $typeKey = strtolower((string)$event['event_type']);
-                    $badgeStyle = $badgeClasses[$typeKey] ?? 'bg-secondary text-white';
+                    $style = $badgeStyles[$typeKey] ?? 'background-color: #6c757d !important; color: #ffffff !important;';
                 ?>
                 <tr>
                     <td><?= htmlspecialchars((string)$event['service_id']) ?></td>
                     <td><?= htmlspecialchars((string)$event['company_id']) ?></td>
                     <td>
-                        <span class="badge <?= $badgeStyle ?>">
+                        <span class="badge" style="<?= $style ?> padding: 6px 10px; font-weight: 600; display: inline-block;">
                             <?= htmlspecialchars((string)$event['event_type']) ?>
                         </span>
                     </td>
