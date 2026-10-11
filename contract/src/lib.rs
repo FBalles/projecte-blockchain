@@ -31,7 +31,7 @@ pub trait ServiceRegistry {
 
         self.history(&caller).push(&event_str);
 
-        self.service_event(&caller, &service_id, &event_type, &timestamp);
+        self.service_event(&caller, &service_id, &timestamp, &event_type);
     }
 
     /// Devuelve la historia completa de una wallet (grupo).
@@ -51,8 +51,8 @@ pub trait ServiceRegistry {
         &self,
         #[indexed] caller: &ManagedAddress,
         #[indexed] service_id: &BigUint,
+        #[indexed] timestamp: &BigUint,
         event_type: &ManagedBuffer,
-        timestamp: &BigUint,
     );
 
     #[storage_mapper("history")]
