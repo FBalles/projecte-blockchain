@@ -1,5 +1,5 @@
 sudo apt update && sudo apt upgrade -y
-sudo apt install -y nginx mariadb-server php-fpm php-mysql php-cli php-curl php-xml php-mbstring git curl rsync python3 python3-pip python3-venv
+sudo apt install -y nginx mariadb-server php-fpm php-mysql php-cli php-curl php-xml php-mbstring git curl rsync python3 python3-pip python3-venv pkg-config libssl-dev build-essential
 
 # Enable web server and database services
 sudo systemctl enable --now nginx mariadb
