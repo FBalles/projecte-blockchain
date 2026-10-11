@@ -39,8 +39,7 @@ class MultiversxClient
         exec($cmd, $output, $returnCode);
         $fullOutput = implode("\n", $output);
 
-        // Debug log write
-        $logData = "[" . date('Y-m-d H:i:s') . "] Executed: $cmd\nReturn Code: $returnCode\nOutput:\n$fullOutput\n----------------------------------------\n";
+        $logData = "[" . date('Y-m-d H:i:s') . "] Send Executed: $cmd\nReturn Code: $returnCode\nOutput:\n$fullOutput\n----------------------------------------\n";
         file_put_contents('/tmp/mx_debug.log', $logData, FILE_APPEND);
 
         if ($returnCode !== 0) {
@@ -66,10 +65,6 @@ class MultiversxClient
             return $m[1];
         }
 
-        if (preg_match('/(?:emitted transaction hash|txhash|tx hash):\s*([0-9a-fA-F]{64})/i', $fullOutput, $m)) {
-            return $m[1];
-        }
-
         return null;
     }
 
@@ -80,7 +75,10 @@ class MultiversxClient
         $gateway  = env('MX_GATEWAY');
 
         $address = self::getAddress($pemPath);
-        if (!$address) return [];
+        if (!$address) {
+            file_put_contents('/tmp/mx_debug.log', "[" . date('Y-m-d H:i:s') . "] Query Error: Could not resolve wallet address from '$pemPath'\n", FILE_APPEND);
+            return [];
+        }
 
         $cmd = sprintf(
             'HOME=/tmp %s contract query %s --function getHistory --arguments %s --proxy %s 2>&1',
@@ -91,13 +89,55 @@ class MultiversxClient
         );
 
         exec($cmd, $output, $rc);
+        $fullOutput = implode("\n", $output);
+
+        $logData = "[" . date('Y-m-d H:i:s') . "] Query Executed: $cmd\nReturn Code: $rc\nOutput:\n$fullOutput\n----------------------------------------\n";
+        file_put_contents('/tmp/mx_debug.log', $logData, FILE_APPEND);
+
+        if ($rc !== 0) {
+            return [];
+        }
 
         $events = [];
-        foreach ($output as $line) {
-            if (preg_match('/"([0-9a-fA-F]+)"/', $line, $m)) {
-                $decoded = @hex2bin($m[1]);
-                if ($decoded !== false) {
-                    $events[] = $decoded;
+
+        // Parse JSON output from mxpy contract query
+        $json = json_decode($fullOutput, true);
+        if (is_array($json)) {
+            foreach ($json as $item) {
+                if (is_array($item)) {
+                    if (!empty($item['hex'])) {
+                        $decoded = @hex2bin($item['hex']);
+                        if ($decoded !== false) $events[] = $decoded;
+                    } elseif (!empty($item['base64'])) {
+                        $decoded = @base64_decode($item['base64']);
+                        if ($decoded !== false) $events[] = $decoded;
+                    }
+                } elseif (is_string($item)) {
+                    $decodedHex = @hex2bin($item);
+                    if ($decodedHex !== false && ctype_print($decodedHex)) {
+                        $events[] = $decodedHex;
+                    } else {
+                        $decodedB64 = @base64_decode($item);
+                        if ($decodedB64 !== false) $events[] = $decodedB64;
+                    }
+                }
+            }
+
+            if (!empty($events)) {
+                return $events;
+            }
+        }
+
+        // Fallback regex for hex values
+        if (preg_match_all('/"(?:hex|base64)":\s*"([^"]+)"/', $fullOutput, $matches, PREG_SET_ORDER)) {
+            foreach ($matches as $m) {
+                $val = $m[1];
+                if (ctype_xdigit($val) && strlen($val) % 2 === 0) {
+                    $decoded = @hex2bin($val);
+                    if ($decoded !== false) $events[] = $decoded;
+                } else {
+                    $decoded = @base64_decode($val);
+                    if ($decoded !== false) $events[] = $decoded;
                 }
             }
         }
