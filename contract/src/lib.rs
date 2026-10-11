@@ -56,5 +56,5 @@ pub trait ServiceRegistry {
     );
 
     #[storage_mapper("history")]
-    fn history(&self, caller: &ManagedAddress) -> VectorMapper<ManagedBuffer>;
+    fn history(&self, caller: &ManagedAddress) -> VecMapper<ManagedBuffer>;
 }
