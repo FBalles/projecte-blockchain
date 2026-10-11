@@ -55,6 +55,8 @@ sc-meta build
 # Create wallet
 mkdir -p $HOME/projecte-blockchain/keys
 mxpy wallet new --format pem --outfile $HOME/projecte-blockchain/keys/wallet.pem
+mxpy wallet new --format pem --outfile $HOME/projecte-blockchain/keys/teacher-wallet.pem
+
 
 # faucet
 
