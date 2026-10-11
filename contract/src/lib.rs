@@ -34,10 +34,14 @@ pub trait ServiceRegistry {
         self.service_event(&caller, &service_id, &timestamp, &event_type);
     }
 
-    /// Devuelve la historia completa de una wallet (grupo).
+    /// Devuelve la historia completa de una wallet.
     #[view(getHistory)]
     fn get_history(&self, caller: ManagedAddress) -> ManagedVec<ManagedBuffer> {
-        self.history(&caller).load_as_vec().into()
+        let mut history_vec = ManagedVec::new();
+        for item in self.history(&caller).iter() {
+            history_vec.push(item);
+        }
+        history_vec
     }
 
     /// Devuelve el número de eventos de una wallet.
