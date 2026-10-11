@@ -88,3 +88,6 @@ sudo certbot --nginx -d projecte.tudominio.com
 
 sudo apt install chromium
 # install dbeaver
+
+#When PHP runs under Nginx (www-data user), it cannot see binaries inside /home/debian/.local/bin/.
+#sudo ln -s /home/debian/.local/bin/mxpy /usr/local/bin/mxpy
