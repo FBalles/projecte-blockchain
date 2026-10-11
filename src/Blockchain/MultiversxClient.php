@@ -80,8 +80,9 @@ class MultiversxClient
             return [];
         }
 
+        // Added addr: prefix for address arguments
         $cmd = sprintf(
-            'HOME=/tmp %s contract query %s --function getHistory --arguments %s --proxy %s 2>&1',
+            'HOME=/tmp %s contract query %s --function getHistory --arguments addr:%s --proxy %s 2>&1',
             escapeshellarg(self::MXPY_BIN),
             escapeshellarg($contract),
             escapeshellarg($address),
@@ -105,9 +106,24 @@ class MultiversxClient
             foreach ($json as $item) {
                 $hex = is_array($item) ? ($item['hex'] ?? null) : $item;
                 if ($hex && is_string($hex)) {
-                    $decoded = @hex2bin($hex);
-                    if ($decoded !== false) {
-                        $events[] = $decoded;
+                    $rawBinary = @hex2bin($hex);
+                    if ($rawBinary !== false) {
+                        // Unpack MultiversX ManagedVec length-prefixed items
+                        $offset = 0;
+                        $totalLen = strlen($rawBinary);
+                        
+                        while ($offset + 4 <= $totalLen) {
+                            $itemLen = unpack('N', substr($rawBinary, $offset, 4))[1];
+                            $offset += 4;
+                            if ($offset + $itemLen > $totalLen) break;
+                            $events[] = substr($rawBinary, $offset, $itemLen);
+                            $offset += $itemLen;
+                        }
+
+                        // Fallback if no binary length headers were present
+                        if (empty($events) && ctype_print($rawBinary)) {
+                            $events[] = $rawBinary;
+                        }
                     }
                 }
             }
@@ -122,7 +138,6 @@ class MultiversxClient
             return null;
         }
 
-        // Reads the Bech32 address directly from the PEM header
         $content = file_get_contents($pemPath);
         if ($content && preg_match('/(erd1[0-9a-z]{58})/i', $content, $m)) {
             return $m[1];
