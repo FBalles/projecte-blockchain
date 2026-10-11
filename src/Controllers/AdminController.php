@@ -99,7 +99,40 @@ class AdminController
 
     public static function trazabilidad(array $params = []): void
     {
-        $events = MultiversxClient::getHistory();
+        $rawEvents = MultiversxClient::getHistory();
+        $events = [];
+
+        foreach ($rawEvents as $raw) {
+            $parts = explode('|', $raw);
+            if (count($parts) >= 4) {
+                $serviceId = (int)$parts[0];
+                $companyId = (int)$parts[1];
+                $eventType = $parts[2];
+                $timestamp = (int)$parts[3];
+
+                // Fetch matching transaction hash from database
+                $stmt = db()->prepare("
+                    SELECT tx_hash 
+                    FROM solicitudes 
+                    WHERE servicio_id = ? AND empresa_id = ? AND tx_hash IS NOT NULL 
+                    ORDER BY id DESC LIMIT 1
+                ");
+                $stmt->execute([$serviceId, $companyId]);
+                $solicitud = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                $txHash = $solicitud['tx_hash'] ?? null;
+
+                $events[] = [
+                    'service_id'   => $serviceId,
+                    'company_id'   => $companyId,
+                    'event_type'   => $eventType,
+                    'timestamp'    => $timestamp,
+                    'tx_hash'      => $txHash,
+                    'explorer_url' => $txHash ? "https://devnet-explorer.multiversx.com/transactions/" . $txHash : null
+                ];
+            }
+        }
+
         view('admin/trazabilidad.php', ['events' => $events]);
     }
 }
