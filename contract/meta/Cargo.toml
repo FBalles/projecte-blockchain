@@ -1,0 +1,9 @@
+[package]
+name = "service-registry-meta"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+multiversx-sc-meta = "0.47.0"
+service-registry = { path = ".." }
