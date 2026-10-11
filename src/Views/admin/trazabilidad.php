@@ -1,8 +1,19 @@
-<?php $titulo = 'Trazabilidad Blockchain'; ?>
+<?php 
+$titulo = 'Trazabilidad Blockchain'; 
+
+// Map event types to readable Bootstrap badge styles
+$badgeClasses = [
+    'solicitud'  => 'bg-primary text-white',
+    'aceptacion' => 'bg-success text-white',
+    'entrega'    => 'bg-info text-dark',
+    'rechazo'    => 'bg-danger text-white',
+    'aprobacion' => 'bg-warning text-dark',
+];
+?>
 
 <h2>Trazabilidad Blockchain (MultiversX)</h2>
 
-<table class="table table-striped">
+<table class="table table-striped align-middle">
     <thead>
         <tr>
             <th>ID Servicio</th>
@@ -19,11 +30,15 @@
             </tr>
         <?php else: ?>
             <?php foreach ($events as $event): ?>
+                <?php 
+                    $typeKey = strtolower((string)$event['event_type']);
+                    $badgeStyle = $badgeClasses[$typeKey] ?? 'bg-secondary text-white';
+                ?>
                 <tr>
                     <td><?= htmlspecialchars((string)$event['service_id']) ?></td>
                     <td><?= htmlspecialchars((string)$event['company_id']) ?></td>
                     <td>
-                        <span class="badge bg-info">
+                        <span class="badge <?= $badgeStyle ?>">
                             <?= htmlspecialchars((string)$event['event_type']) ?>
                         </span>
                     </td>
