@@ -11,7 +11,6 @@ pub trait ServiceRegistry {
     fn upgrade(&self) {}
 
     /// Registra un evento de servicio.
-    /// El caller (wallet del grupo) queda asociado automáticamente.
     #[endpoint(recordEvent)]
     fn record_event(
         &self,
@@ -22,28 +21,17 @@ pub trait ServiceRegistry {
     ) {
         let caller = self.blockchain().get_caller();
 
-        let event_str = ManagedBuffer::from(
-            format!(
-                "{}|{}|{}|{}",
-                service_id.to_string(),
-                company_id.to_string(),
-                event_type.to_string(),
-                timestamp.to_string()
-            )
-            .as_bytes()
+        let event_str = sc_format!(
+            "{}|{}|{}|{}",
+            service_id,
+            company_id,
+            event_type,
+            timestamp
         );
 
-        let history = self.history(&caller);
-        history.push(event_str);
+        self.history(&caller).push(&event_str);
 
-        // Event log para exploradora
-        sc::events::emit::<_, _, _, _, _>(
-            &ManagedBuffer::from(b"ServiceEvent"),
-            &caller,
-            &service_id,
-            &event_type,
-            &timestamp,
-        );
+        self.service_event(&caller, &service_id, &event_type, &timestamp);
     }
 
     /// Devuelve la historia completa de una wallet (grupo).
@@ -54,9 +42,18 @@ pub trait ServiceRegistry {
 
     /// Devuelve el número de eventos de una wallet.
     #[view(getCount)]
-    fn get_count(&self, caller: ManagedAddress) -> BigUint {
+    fn get_count(&self, caller: ManagedAddress) -> usize {
         self.history(&caller).len()
     }
+
+    #[event("ServiceEvent")]
+    fn service_event(
+        &self,
+        #[indexed] caller: &ManagedAddress,
+        #[indexed] service_id: &BigUint,
+        event_type: &ManagedBuffer,
+        timestamp: &BigUint,
+    );
 
     #[storage_mapper("history")]
     fn history(&self, caller: &ManagedAddress) -> VectorMapper<ManagedBuffer>;

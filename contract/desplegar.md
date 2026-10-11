@@ -1,9 +1,9 @@
 cd $HOME/projecte-blockchain/contract
 
 # Build WASM bytecode
-sc-meta build
+sc-meta all build
 
-# Deploy to Devnet
+# Deploy contract
 mxpy contract deploy \
   --bytecode=output/service-registry.wasm \
   --pem=$HOME/projecte-blockchain/keys/wallet.pem \

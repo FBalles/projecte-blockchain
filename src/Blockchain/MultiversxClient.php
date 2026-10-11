@@ -5,38 +5,31 @@ class MultiversxClient
 {
     public static function send(int $serviceId, int $companyId, string $eventType): ?string
     {
-        $pemPath   = env('MX_PEM_PATH');
-        $contract  = env('MX_CONTRACT_ADDRESS');
-        $gateway   = env('MX_GATEWAY');
+        $pemPath  = env('MX_PEM_PATH');
+        $contract = env('MX_CONTRACT_ADDRESS');
+        $gateway  = env('MX_GATEWAY');
 
         if (!file_exists($pemPath)) {
             error_log("MX: PEM no encontrado en $pemPath");
             return null;
         }
 
-        $data = sprintf(
-            'recordEvent@%s@%s@%s@%s',
-            dechex($serviceId),
-            dechex($companyId),
-            $eventType,
-            dechex(time())
-        );
-
+        // mxpy requires str: prefix for raw string args and decimal/hex format for numbers
         $cmd = sprintf(
-            'HOME=/tmp /usr/local/bin/mxpy contract call %s '
+            'mxpy contract call %s '
             . '--pem %s '
             . '--proxy %s '
             . '--function recordEvent '
-            . '--arguments %s %s %s %s '
+            . '--arguments %d %d str:%s %d '
             . '--gas-limit 50000000 '
             . '--send --wait-result 2>&1',
-            $contract,
+            escapeshellarg($contract),
             escapeshellarg($pemPath),
-            $gateway,
-            dechex($serviceId),
-            dechex($companyId),
-            $eventType,
-            dechex(time())
+            escapeshellarg($gateway),
+            $serviceId,
+            $companyId,
+            escapeshellcmd($eventType),
+            time()
         );
 
         exec($cmd, $output, $returnCode);
@@ -46,12 +39,11 @@ class MultiversxClient
             return null;
         }
 
-        // Parsear txHash del output de mxpy
         foreach ($output as $line) {
-            if (preg_match('/txHash:\s*(\w+)/', $line, $m)) {
+            if (preg_match('/txHash:\s*([0-9a-fA-F]+)/', $line, $m)) {
                 return $m[1];
             }
-            if (preg_match('/tx hash:\s*(\w+)/i', $line, $m)) {
+            if (preg_match('/tx hash:\s*([0-9a-fA-F]+)/i', $line, $m)) {
                 return $m[1];
             }
         }
@@ -65,34 +57,30 @@ class MultiversxClient
         $contract = env('MX_CONTRACT_ADDRESS');
         $gateway  = env('MX_GATEWAY');
 
-        // Obtener dirección de la wallet
         $address = self::getAddress($pemPath);
         if (!$address) return [];
 
-        // Query al contrato
-        $ch = curl_init($gateway . '/smart-contract/query');
-        curl_setopt_array($ch, [
-            CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => json_encode([
-                'scAddress' => $contract,
-                'funcName'  => 'getHistory',
-                'args'      => [$address],
-            ]),
-            CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT => 10,
-        ]);
-        $res = json_decode(curl_exec($ch), true);
-        curl_close($ch);
+        // Query SC using mxpy (handles Bech32 address conversion automatically)
+        $cmd = sprintf(
+            'mxpy contract query %s --function getHistory --arguments %s --proxy %s 2>&1',
+            escapeshellarg($contract),
+            escapeshellarg($address),
+            escapeshellarg($gateway)
+        );
 
-        $raw = $res['data']['returnData'][0] ?? '';
-        $decoded = base64_decode($raw);
+        exec($cmd, $output, $rc);
+        if ($rc !== 0) {
+            error_log("MX: Error executing query: " . implode("\n", $output));
+            return [];
+        }
 
-        // El returnData viene como array de ManagedBuffer (un hex por evento)
         $events = [];
-        if (preg_match_all('/"([0-9a-f]+)"/', $decoded, $matches)) {
-            foreach ($matches[1] as $hex) {
-                $events[] = hex2bin($hex);
+        foreach ($output as $line) {
+            if (preg_match('/"([0-9a-fA-F]+)"/', $line, $m)) {
+                $decoded = @hex2bin($m[1]);
+                if ($decoded !== false) {
+                    $events[] = $decoded;
+                }
             }
         }
 
@@ -105,8 +93,9 @@ class MultiversxClient
         exec($cmd, $output, $rc);
         if ($rc === 0) {
             foreach ($output as $line) {
-                if (str_starts_with(trim($line), 'erd1')) {
-                    return trim($line);
+                $trimmed = trim($line);
+                if (str_starts_with($trimmed, 'erd1')) {
+                    return $trimmed;
                 }
             }
         }
