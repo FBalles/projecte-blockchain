@@ -37,7 +37,7 @@ pub trait ServiceRegistry {
     /// Devuelve la historia completa de una wallet (grupo).
     #[view(getHistory)]
     fn get_history(&self, caller: ManagedAddress) -> ManagedVec<ManagedBuffer> {
-        self.history(&caller).as_vec()
+        self.history(&caller).load_as_vec()
     }
 
     /// Devuelve el número de eventos de una wallet.
