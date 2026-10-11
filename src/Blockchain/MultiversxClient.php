@@ -154,14 +154,13 @@ class MultiversxClient
         $cmd = sprintf('HOME=/tmp %s wallet address --pem %s 2>&1', escapeshellarg(self::MXPY_BIN), escapeshellarg($pemPath));
 
         exec($cmd, $output, $rc);
-        if ($rc === 0) {
-            foreach ($output as $line) {
-                $trimmed = trim($line);
-                if (str_starts_with($trimmed, 'erd1')) {
-                    return $trimmed;
-                }
-            }
+        $fullOutput = implode("\n", $output);
+
+        if ($rc === 0 && preg_match('/(erd1[0-9a-z]{58})/i', $fullOutput, $m)) {
+            return $m[1];
         }
+
+        file_put_contents('/tmp/mx_debug.log', "[" . date('Y-m-d H:i:s') . "] getAddress Failed (rc=$rc). Output:\n$fullOutput\n----------------------------------------\n", FILE_APPEND);
         return null;
     }
 }
