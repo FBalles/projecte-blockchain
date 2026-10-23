@@ -10,10 +10,12 @@ pub trait ServiceRegistry {
     #[upgrade]
     fn upgrade(&self) {}
 
-    /// Registra un evento de servicio.
+    /// Registra un evento de una solicitud concreta.
+    /// Una empresa puede usar el mismo servicio varias veces: cada uso tiene su request_id.
     #[endpoint(recordEvent)]
     fn record_event(
         &self,
+        request_id: BigUint,
         service_id: BigUint,
         company_id: BigUint,
         event_type: ManagedBuffer,
@@ -22,7 +24,8 @@ pub trait ServiceRegistry {
         let caller = self.blockchain().get_caller();
 
         let event_str = sc_format!(
-            "{}|{}|{}|{}",
+            "{}|{}|{}|{}|{}",
+            request_id,
             service_id,
             company_id,
             event_type,
@@ -31,7 +34,7 @@ pub trait ServiceRegistry {
 
         self.history(&caller).push(&event_str);
 
-        self.service_event(&caller, &service_id, &timestamp, &event_type);
+        self.service_event(&caller, &request_id, &service_id, &timestamp, &event_type);
     }
 
     /// Devuelve la historia completa de una wallet.
@@ -54,6 +57,7 @@ pub trait ServiceRegistry {
     fn service_event(
         &self,
         #[indexed] caller: &ManagedAddress,
+        #[indexed] request_id: &BigUint,
         #[indexed] service_id: &BigUint,
         #[indexed] timestamp: &BigUint,
         event_type: &ManagedBuffer,

@@ -4,9 +4,10 @@
     <p>No has realizado ninguna solicitud.</p>
 <?php else: ?>
 <table>
-    <tr><th>Servicio</th><th>Estado</th><th>Fecha</th><th>Tx Hash</th><th>Acción</th></tr>
+    <tr><th>ID</th><th>Servicio</th><th>Estado</th><th>Fecha</th><th>Tx Hash</th><th>Acción</th></tr>
     <?php foreach ($solicitudes as $s): ?>
     <tr>
+        <td><?= (int) $s['id'] ?></td>
         <td><?= htmlspecialchars($s['servicio_nombre']) ?></td>
         <td><span class="badge badge-<?= $s['estado'] ?>"><?= ucfirst($s['estado']) ?></span></td>
         <td><?= $s['fecha'] ?></td>

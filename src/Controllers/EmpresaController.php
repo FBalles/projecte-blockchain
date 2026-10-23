@@ -13,13 +13,11 @@ class EmpresaController
         $servicioId = (int)$_POST['servicio_id'];
         $empresaId  = (int)$_SESSION['user_id'];
 
-        Solicitud::crear($servicioId, $empresaId);
+        $solicitudId = Solicitud::crear($servicioId, $empresaId);
 
-        // Blockchain
-        $txHash = MultiversxClient::send($servicioId, $empresaId, 'solicitud');
+        $txHash = MultiversxClient::send($solicitudId, $servicioId, $empresaId, 'solicitud');
         if ($txHash) {
-            $stmt = db()->prepare("UPDATE solicitudes SET tx_hash = ? WHERE servicio_id = ? AND empresa_id = ? ORDER BY id DESC LIMIT 1");
-            $stmt->execute([$txHash, $servicioId, $empresaId]);
+            Solicitud::cambiarEstado($solicitudId, 'pendiente', $txHash);
         }
 
         header('Location: /empresa/solicitudes');
@@ -42,6 +40,7 @@ class EmpresaController
         Solicitud::cambiarEstado($id, 'validada');
 
         $txHash = MultiversxClient::send(
+            (int) $solicitud['id'],
             $solicitud['servicio_id'],
             $solicitud['empresa_id'],
             'aprobacion'
