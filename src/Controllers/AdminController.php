@@ -43,6 +43,7 @@ class AdminController
 
         // Blockchain
         $txHash = MultiversxClient::send(
+            (int) $solicitud['id'],
             $solicitud['servicio_id'],
             $solicitud['empresa_id'],
             'aceptacion'
@@ -64,6 +65,7 @@ class AdminController
         Solicitud::cambiarEstado($id, 'rechazada');
 
         $txHash = MultiversxClient::send(
+            (int) $solicitud['id'],
             $solicitud['servicio_id'],
             $solicitud['empresa_id'],
             'rechazo'
@@ -85,6 +87,7 @@ class AdminController
         Solicitud::cambiarEstado($id, 'realizada');
 
         $txHash = MultiversxClient::send(
+            (int) $solicitud['id'],
             $solicitud['servicio_id'],
             $solicitud['empresa_id'],
             'entrega'
@@ -104,33 +107,44 @@ class AdminController
 
         foreach ($rawEvents as $raw) {
             $parts = explode('|', $raw);
-            if (count($parts) >= 4) {
-                $serviceId = (int)$parts[0];
-                $companyId = (int)$parts[1];
+            $requestId = null;
+            $serviceId = null;
+            $companyId = null;
+            $eventType = null;
+            $timestamp = null;
+
+            if (count($parts) >= 5) {
+                $requestId = (int) $parts[0];
+                $serviceId = (int) $parts[1];
+                $companyId = (int) $parts[2];
+                $eventType = $parts[3];
+                $timestamp = (int) $parts[4];
+            } elseif (count($parts) >= 4) {
+                $serviceId = (int) $parts[0];
+                $companyId = (int) $parts[1];
                 $eventType = $parts[2];
-                $timestamp = (int)$parts[3];
-
-                // Fetch matching transaction hash from database
-                $stmt = db()->prepare("
-                    SELECT tx_hash 
-                    FROM solicitudes 
-                    WHERE servicio_id = ? AND empresa_id = ? AND tx_hash IS NOT NULL 
-                    ORDER BY id DESC LIMIT 1
-                ");
-                $stmt->execute([$serviceId, $companyId]);
-                $solicitud = $stmt->fetch(PDO::FETCH_ASSOC);
-
-                $txHash = $solicitud['tx_hash'] ?? null;
-
-                $events[] = [
-                    'service_id'   => $serviceId,
-                    'company_id'   => $companyId,
-                    'event_type'   => $eventType,
-                    'timestamp'    => $timestamp,
-                    'tx_hash'      => $txHash,
-                    'explorer_url' => $txHash ? "https://devnet-explorer.multiversx.com/transactions/" . $txHash : null
-                ];
+                $timestamp = (int) $parts[3];
+            } else {
+                continue;
             }
+
+            $txHash = null;
+            if ($requestId) {
+                $stmt = db()->prepare("SELECT tx_hash FROM solicitudes WHERE id = ?");
+                $stmt->execute([$requestId]);
+                $solicitud = $stmt->fetch(PDO::FETCH_ASSOC);
+                $txHash = $solicitud['tx_hash'] ?? null;
+            }
+
+            $events[] = [
+                'request_id'   => $requestId,
+                'service_id'   => $serviceId,
+                'company_id'   => $companyId,
+                'event_type'   => $eventType,
+                'timestamp'    => $timestamp,
+                'tx_hash'      => $txHash,
+                'explorer_url' => $txHash ? "https://devnet-explorer.multiversx.com/transactions/" . $txHash : null
+            ];
         }
 
         view('admin/trazabilidad.php', ['events' => $events]);

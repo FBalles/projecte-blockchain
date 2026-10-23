@@ -7,9 +7,10 @@
     <p>No hay solicitudes pendientes.</p>
 <?php else: ?>
 <table>
-    <tr><th>Empresa</th><th>Servicio</th><th>Fecha</th><th>Acciones</th></tr>
+    <tr><th>ID</th><th>Empresa</th><th>Servicio</th><th>Fecha</th><th>Acciones</th></tr>
     <?php foreach ($pendientes as $s): ?>
     <tr>
+        <td><?= (int) $s['id'] ?></td>
         <td><?= htmlspecialchars($s['empresa_nombre']) ?></td>
         <td><?= htmlspecialchars($s['servicio_nombre']) ?></td>
         <td><?= $s['fecha'] ?></td>
@@ -40,9 +41,10 @@ $aceptadas = db()->query("
     <p>Ninguna.</p>
 <?php else: ?>
 <table>
-    <tr><th>Empresa</th><th>Servicio</th><th>Fecha</th><th>Acción</th></tr>
+    <tr><th>ID</th><th>Empresa</th><th>Servicio</th><th>Fecha</th><th>Acción</th></tr>
     <?php foreach ($aceptadas as $s): ?>
     <tr>
+        <td><?= (int) $s['id'] ?></td>
         <td><?= htmlspecialchars($s['empresa_nombre']) ?></td>
         <td><?= htmlspecialchars($s['servicio_nombre']) ?></td>
         <td><?= $s['fecha'] ?></td>

@@ -28,10 +28,11 @@ class Solicitud
         ")->fetchAll();
     }
 
-    public static function crear(int $servicioId, int $empresaId): void
+    public static function crear(int $servicioId, int $empresaId): int
     {
         db()->prepare("INSERT INTO solicitudes (servicio_id, empresa_id, estado) VALUES (?,?,'pendiente')")
             ->execute([$servicioId, $empresaId]);
+        return (int) db()->lastInsertId();
     }
 
     public static function cambiarEstado(int $id, string $estado, ?string $txHash = null): void

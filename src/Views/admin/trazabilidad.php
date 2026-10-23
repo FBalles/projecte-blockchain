@@ -16,6 +16,7 @@ $badgeStyles = [
 <table class="table table-striped align-middle">
     <thead>
         <tr>
+            <th>ID Solicitud</th>
             <th>ID Servicio</th>
             <th>ID Empresa</th>
             <th>Evento</th>
@@ -26,7 +27,7 @@ $badgeStyles = [
     <tbody>
         <?php if (empty($events)): ?>
             <tr>
-                <td colspan="5" class="text-center">No hay eventos registrados en la blockchain.</td>
+                <td colspan="6" class="text-center">No hay eventos registrados en la blockchain.</td>
             </tr>
         <?php else: ?>
             <?php foreach ($events as $event): ?>
@@ -35,6 +36,7 @@ $badgeStyles = [
                     $style = $badgeStyles[$typeKey] ?? 'background-color: #6c757d !important; color: #ffffff !important;';
                 ?>
                 <tr>
+                    <td><?= htmlspecialchars((string)($event['request_id'] ?? '—')) ?></td>
                     <td><?= htmlspecialchars((string)$event['service_id']) ?></td>
                     <td><?= htmlspecialchars((string)$event['company_id']) ?></td>
                     <td>

@@ -5,7 +5,7 @@ class MultiversxClient
 {
     private const MXPY_BIN = '/usr/local/bin/mxpy';
 
-    public static function send(int $serviceId, int $companyId, string $eventType): ?string
+    public static function send(int $requestId, int $serviceId, int $companyId, string $eventType): ?string
     {
         $pemPath  = env('MX_PEM_PATH');
         $contract = env('MX_CONTRACT_ADDRESS');
@@ -23,13 +23,14 @@ class MultiversxClient
             . '--pem %s '
             . '--proxy %s '
             . '--function recordEvent '
-            . '--arguments %d %d str:%s %d '
+            . '--arguments %d %d %d str:%s %d '
             . '--gas-limit 50000000 '
             . '--send --wait-result 2>&1',
             escapeshellarg(self::MXPY_BIN),
             escapeshellarg($contract),
             escapeshellarg($pemPath),
             escapeshellarg($gateway),
+            $requestId,
             $serviceId,
             $companyId,
             escapeshellcmd($eventType),
