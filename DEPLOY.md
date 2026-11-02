@@ -95,7 +95,18 @@ mariadb -u projecte -p'projecte' projecte < $HOME/projecte-blockchain/migrations
 
 ---
 
-## 8. Configuració del Fitxer `.env`
+## 8. Crear la wallet
+Crea la wallet i utilitza un "faucet" per generar EGLD.
+(https://devnet-wallet.multiversx.com/unlock)
+
+```bash
+mkdir -p $HOME/projecte-blockchain/keys
+mxpy wallet new --format pem --outfile $HOME/projecte-blockchain/keys/wallet.pem
+```
+
+---
+
+## 9. Configuració del Fitxer `.env`
 Copieu el fitxer d'exemple i modifiqueu les variables d'entorn si és necessari:
 
 ```bash
@@ -105,7 +116,7 @@ nano $HOME/projecte-blockchain/.env
 
 ---
 
-## 9. Execució del Script de Desplegament
+## 10. Execució del Script de Desplegament
 Doneu permisos d'execució al script `deploy.sh` i executeu-lo per sincronitzar els fitxers a `/var/www/projecte`:
 
 ```bash
@@ -115,7 +126,7 @@ $HOME/projecte-blockchain/deploy.sh
 
 ---
 
-## 10. Configuració i Reinici de Nginx
+## 11. Configuració i Reinici de Nginx
 Habiliteu el lloc web a la configuració de Nginx, desactiveu el lloc per defecte, comproveu la sintaxi i recarregueu el servei:
 
 ```bash
@@ -127,4 +138,4 @@ sudo systemctl reload nginx
 ```
 
 
-## Install dbeaver 
+## 12 Install dbeaver 
